@@ -1,3 +1,4 @@
+import * as core from 'express-serve-static-core';
 import Joi from 'joi';
 
 export interface ArrayResponse<T> {
@@ -31,27 +32,19 @@ export interface EndpointSchemaSwaggerOptions {
   description?: string;
 }
 
-// responsible for locating interfaces with data
-// added to `res.locals`
-//
-// Usage example:
-// const controller = (req: Request, res: Response<any, ResponseLocals.AuthenticatedUser>) => {
-//   const { userId } = res.locals;
-// };
-export namespace ResponseLocals {
-  export interface AuthenticatedUser {
-    userId: number;
-  }
-}
-
-export interface Pagination {
-  limit: number;
-  offset: number;
-}
-
 export interface DialectOptions {
   ssl: {
     require: boolean;
     rejectUnauthorized: boolean;
   };
+}
+
+export interface AuthorizedRequest<
+  P = core.ParamsDictionary,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = core.Query,
+  Locals extends Record<string, any> = Record<string, any>,
+> extends core.Request<P, ResBody, ReqBody, ReqQuery, Locals> {
+  userId: string;
 }

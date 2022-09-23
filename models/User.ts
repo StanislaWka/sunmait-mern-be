@@ -1,6 +1,15 @@
 import { Schema, model } from 'mongoose';
 
-const schema = new Schema(
+export interface UserModel {
+  _id: string;
+  name: string;
+  surname: string;
+  email: string;
+  password: string;
+  avatarUrl: string;
+}
+
+const schema = new Schema<UserModel>(
   {
     name: { type: String, required: true },
     surname: { type: String, required: true },

@@ -1,9 +1,15 @@
 import { Schema, model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
-const schema = new Schema({
+export interface TokenModel {
+  refreshToken: string;
+  user: ObjectId;
+}
+
+const schema = new Schema<TokenModel>({
   refreshToken: { type: String, required: true },
   user: {
-    type: Schema.Types.ObjectId,
+    type: ObjectId,
     ref: 'User',
     require: true,
   },

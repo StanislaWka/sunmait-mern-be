@@ -1,6 +1,17 @@
 import { Schema, model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
-const PostSchema = new Schema(
+export interface PostModel {
+  _id: string;
+  title: string;
+  text: string;
+  tags: string[];
+  viewsCount: number;
+  imageUrl: string;
+  user: ObjectId;
+}
+
+const PostSchema = new Schema<PostModel>(
   {
     title: {
       type: String,
@@ -11,16 +22,13 @@ const PostSchema = new Schema(
       required: true,
       unique: true,
     },
-    tags: {
-      type: Array,
-      default: [],
-    },
+    tags: [String],
     viewsCount: {
       type: Number,
       default: 0,
     },
     user: {
-      type: Schema.Types.ObjectId,
+      type: ObjectId,
       ref: 'User',
       require: true,
     },

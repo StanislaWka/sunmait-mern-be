@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import userService from './service';
-import { cookieOption } from '../../constants';
+import userService from '../services/user';
+import { cookieOption } from '../constants';
+import { LoginBody, RegistrationBody } from './interfaces';
 
 class UsersController {
-  async registration(req: Request, res: Response) {
+  async registration(req: Request<null, null, RegistrationBody>, res: Response) {
     try {
       const { email, password, name, surname } = req.body;
 
@@ -16,7 +17,7 @@ class UsersController {
     }
   }
 
-  async login(req: Request, res: Response) {
+  async login(req: Request<null, null, LoginBody>, res: Response) {
     try {
       const { email, password } = req.body;
 
@@ -34,7 +35,7 @@ class UsersController {
     }
   }
 
-  async getUsers(req: Request, res: Response) {
+  async getUsers(req: Request<null, null, null>, res: Response) {
     try {
       const result = await userService.getUsers();
 

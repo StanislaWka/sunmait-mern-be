@@ -1,18 +1,20 @@
 import { Request, Response } from 'express';
-import { HTTP_CODE } from '../../constants';
-import postService from './service';
+import { HTTP_CODE } from '../constants';
+import { AuthorizedRequest } from '../interfaces';
+import postService from '../services/post';
+import { IdParam, PostData } from './interfaces';
 
 class PostsController {
-  async createPost(req: Request, res: Response) {
+  async createPost(req: AuthorizedRequest<null, null, PostData>, res: Response) {
     try {
-      const { title, text, userId, imageUrl, viewsCount, tags = [] } = req.body;
+      const { title, text, imageUrl, viewsCount, tags = [] } = req.body;
 
       const result = await postService.createPost({
         title,
         text,
         tags,
         viewsCount,
-        userId,
+        userId: req.userId,
         imageUrl,
       });
 
@@ -34,7 +36,7 @@ class PostsController {
     }
   }
 
-  async getOnePost(req: Request, res: Response) {
+  async getOnePost(req: Request<IdParam>, res: Response) {
     try {
       const postId = req.params.id;
 
@@ -47,7 +49,7 @@ class PostsController {
     }
   }
 
-  async updatePost(req: Request, res: Response) {
+  async updatePost(req: Request<IdParam, null, PostData>, res: Response) {
     try {
       const postId = req.params.id;
       const { title, text, imageUrl, tags = [] } = req.body;
@@ -66,7 +68,7 @@ class PostsController {
     }
   }
 
-  async deletePost(req: Request, res: Response) {
+  async deletePost(req: Request<IdParam>, res: Response) {
     try {
       const postId = req.params.id;
 

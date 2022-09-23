@@ -1,8 +1,8 @@
-import Joi from 'joi';
-
-import { EndpointSchema } from '../../interfaces';
-import { buildResponse, schemaErrorExample } from '../../utils/schemaResponseExamples';
-import { RESPONSE_CODE } from '../../constants';
+import { EndpointSchema } from '../interfaces';
+import { buildResponse, schemaErrorExample } from '../utils/schemaResponseExamples';
+import { RESPONSE_CODE } from '../constants';
+const Joi = require('joi');
+Joi.objectId = require('joi-objectid')(Joi);
 
 const MAX_TITLE_LENGTH = 50;
 const MAX_TEXT_LENGTH = 250;
@@ -12,7 +12,7 @@ const createPostSchema: EndpointSchema = {
     title: Joi.string().max(MAX_TITLE_LENGTH).required(),
     text: Joi.string().max(MAX_TEXT_LENGTH).required(),
     tags: Joi.array(),
-    userId: Joi.string().required(),
+    userId: Joi.objectId().required(),
     viewsCount: Joi.number(),
     imageUrl: Joi.string().uri(),
   }),
@@ -34,7 +34,7 @@ const createPostSchema: EndpointSchema = {
 const getDeleteWithIdSchema: EndpointSchema = {
   params: Joi.object({
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    id: Joi.string().required().min(14),
+    id: Joi.objectId().required(),
   }),
 
   response: {
@@ -54,7 +54,7 @@ const getDeleteWithIdSchema: EndpointSchema = {
 
 const patchPostSchema: EndpointSchema = {
   params: Joi.object({
-    id: Joi.string().required(),
+    id: Joi.objectId().required(),
   }),
 
   body: Joi.object({
