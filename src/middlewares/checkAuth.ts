@@ -1,6 +1,7 @@
 import { tokenService } from './../services/tokenService';
 import express from 'express';
 import { createError } from '../utils/errors';
+import { AuthorizedRequest } from '../interfaces';
 
 export const checkAuthMiddleware = async (
   req: express.Request,
@@ -22,6 +23,9 @@ export const checkAuthMiddleware = async (
   if (!userData) {
     isAuthenticated = false;
   }
+
+  (req as AuthorizedRequest).userId = tokenService.getUserId(accessToken);
+
   if (isAuthenticated) {
     next();
   } else {

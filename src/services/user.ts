@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
-import { User } from '../../../models/User';
-import { tokenService } from '../../services/tokenService';
-import { createError } from '../../utils/errors';
+import { User } from '../../models/User';
+import { tokenService } from './tokenService';
+import { createError } from '../utils/errors';
 
 class UserService {
   private readonly salt = 12;
   async registration(email: string, password: string, name: string, surname: string) {
-    const candidate = await User.findOne({ email });
+    const candidate = await User.findOne({ email }).lean();
 
     if (candidate) {
       throw new createError.UnprocessableEntity({
@@ -24,7 +24,7 @@ class UserService {
   }
 
   async login(email: string, userPassword: string) {
-    const candidate = await User.findOne({ email });
+    const candidate = await User.findOne({ email }).lean();
 
     if (!candidate) {
       throw new createError.UnprocessableEntity({
@@ -41,7 +41,7 @@ class UserService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, _id, ...userData } = candidate.toObject();
+    const { password, _id, ...userData } = candidate;
 
     const tokenData = tokenService.generateTokens({
       _id: _id.toString(),

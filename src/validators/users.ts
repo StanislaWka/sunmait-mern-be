@@ -1,9 +1,9 @@
 import Joi from 'joi';
 
 import { faker } from '@faker-js/faker';
-import { EndpointSchema } from '../../interfaces';
-import { buildResponse, schemaErrorExample } from '../../utils/schemaResponseExamples';
-import { RESPONSE_CODE } from '../../constants';
+import { EndpointSchema } from '../interfaces';
+import { buildResponse, schemaErrorExample } from '../utils/schemaResponseExamples';
+import { RESPONSE_CODE } from '../constants';
 
 const MAX_NAME_LENGTH = 11;
 const MAX_SURNAME_LENGTH = 14;

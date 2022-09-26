@@ -1,23 +1,18 @@
-import { CallbackError, Document } from 'mongoose';
-import { Post } from '../../../models/Posts';
-import { createError } from '../../utils/errors';
-
-interface PostData {
-  title: string;
-  text: string;
-  tags: string[];
-  viewsCount: number;
-  userId: string;
-  imageUrl: string;
-}
+import { Post } from '../../models/Posts';
+import { PostData } from '../controllers/interfaces';
+import { createError } from '../utils/errors';
 
 interface PatchPost extends Omit<Partial<PostData>, 'userId' | 'viewsCount'> {
   postId: string;
 }
 
+interface CreatePostData extends PostData {
+  userId: string;
+}
+
 class PostsService {
-  async createPost(data: PostData) {
-    const samePost = await Post.findOne({ text: data.text });
+  async createPost(data: CreatePostData) {
+    const samePost = await Post.findOne({ text: data.text }).lean();
 
     if (samePost) {
       throw new createError.UnprocessableEntity();
@@ -29,13 +24,11 @@ class PostsService {
 
     await post.save();
 
-    return { message: 'Post have been created' };
+    return post.toObject();
   }
 
   async getAllPosts() {
-    const posts = await Post.find().populate('user').exec();
-
-    return posts;
+    return await Post.find().populate('user', 'name surname').lean();
   }
 
   async getOnePost(data: { postId: string }) {
@@ -50,6 +43,7 @@ class PostsService {
       },
       {
         returnDocument: 'after',
+        lean: true,
       },
     );
 
@@ -63,35 +57,22 @@ class PostsService {
       throw new createError.UnprocessableEntity();
     }
 
-    await Post.updateOne(
+    const updatedPost = await Post.updateOne(
       {
         _id: postId,
       },
       {
         ...otherData,
       },
-    );
+    ).lean();
 
-    return { message: 'Post was updated successfully' };
+    return updatedPost;
   }
 
   async deletePost(data: { postId: string }) {
-    Post.findOneAndDelete(
-      {
-        _id: data.postId,
-      },
-      (err: CallbackError, doc: Document<unknown>) => {
-        if (err) {
-          console.error(err);
-          throw new createError.InternalServerError();
-        }
-        if (!doc) {
-          throw new createError.NotFound();
-        }
-      },
-    );
-
-    return { message: 'Post was successfully deleted' };
+    await Post.findOneAndDelete({
+      _id: data.postId,
+    }).lean();
   }
 }
 

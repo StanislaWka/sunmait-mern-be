@@ -101,9 +101,9 @@ class TokenService {
   getUserId(token: string) {
     try {
       const data = jwt.decode(token);
-      const { id } = data as { id: string };
+      const { _id } = data as { _id: string };
 
-      return id;
+      return _id;
     } catch (e) {
       throw e;
     }
