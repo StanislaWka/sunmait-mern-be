@@ -24,6 +24,8 @@ module.exports = {
         ignoreEnums: true,
         ignoreReadonlyClassProperties: true,
         ignoreArrayIndexes: true,
+        ignoreDefaultValues: true,
+        ignore: [0, 1], // Idk about ignoring these values yet
       },
     ],
     '@typescript-eslint/no-empty-interface': 'off',

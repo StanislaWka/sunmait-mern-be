@@ -35,7 +35,7 @@ class UsersController {
     }
   }
 
-  async getUsers(req: Request<null, null, null>, res: Response) {
+  async getUsers(req: Request, res: Response) {
     try {
       const result = await userService.getUsers();
 
