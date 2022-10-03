@@ -15,6 +15,7 @@ router.post(
   controller.createPost,
 );
 
+// @ts-ignore
 router.get(POST_ROUTE.MAIN, checkAuthMiddleware, controller.getAllPosts);
 
 router.get(

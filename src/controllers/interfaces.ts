@@ -19,6 +19,14 @@ export type PostDataWithUsers = PostModel & {
   user: Omit<UserModel, 'password' | 'imageUrl'>;
 };
 
+export interface GetAllPostQuery {
+  limit: string;
+  page: string;
+  filter: string;
+  tags: string;
+  order: string;
+}
+
 export interface LoginBody extends Pick<UserModel, 'email' | 'password'> {}
 
 export interface RegistrationBody extends Omit<UserModel, '_id' | 'avatarUrl'> {}

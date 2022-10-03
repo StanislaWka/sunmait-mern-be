@@ -59,6 +59,7 @@ class TagsService {
         { session },
       );
       await Tag.findOneAndDelete({ _id: tagId }, { session }).lean();
+      session.commitTransaction();
     } catch (err) {
       console.error(err);
       session.abortTransaction();

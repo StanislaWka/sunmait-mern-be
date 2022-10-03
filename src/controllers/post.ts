@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { DEFAULT_LIMIT, HTTP_CODE } from '../constants';
 import { AuthorizedRequest } from '../interfaces';
 import postService from '../services/post';
-import { IdParam, PostData } from './interfaces';
+import { GetAllPostQuery, IdParam, PostData } from './interfaces';
 
 class PostsController {
   async createPost(req: AuthorizedRequest<null, null, PostData>, res: Response) {
@@ -21,9 +21,9 @@ class PostsController {
     res.status(HTTP_CODE.CREATED).send(result);
   }
 
-  async getAllPosts(req: Request, res: Response) {
+  async getAllPosts(req: Request<null, null, null, GetAllPostQuery>, res: Response) {
     const { limit = DEFAULT_LIMIT, page = 0, filter = '', tags = '', order = '' } = req.query;
-    let tagsArray = (tags as string).split(',');
+    let tagsArray = tags.split(',');
     let objectIdArray: any = [];
     if (tagsArray[0] === '') {
       tagsArray = [];
@@ -31,13 +31,7 @@ class PostsController {
       objectIdArray = tagsArray.map((tagId) => new ObjectId(tagId));
     }
 
-    const result = await postService.getAllPosts(
-      Number(limit),
-      Number(page),
-      String(filter),
-      objectIdArray,
-      String(order),
-    );
+    const result = await postService.getAllPosts(+limit, +page, filter, objectIdArray, order);
 
     res.send(result);
   }
