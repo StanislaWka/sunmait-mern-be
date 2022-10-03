@@ -12,27 +12,17 @@ interface IdParam {
 
 class TagsController {
   async createTag(req: Request<null, null, TagBody>, res: Response) {
-    try {
-      const { name } = req.body;
+    const { name } = req.body;
 
-      const result = await tagService.createTag(name);
+    const result = await tagService.createTag(name);
 
-      res.status(HTTP_CODE.CREATED).send(result);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
+    res.status(HTTP_CODE.CREATED).send(result);
   }
 
   async getAllTags(req: Request, res: Response) {
-    try {
-      const result = await tagService.getAllTags();
+    const result = await tagService.getAllTags();
 
-      res.send(result);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
+    res.send(result);
   }
 
   async updateTag(req: Request<IdParam, null, TagBody>, res: Response) {
@@ -49,15 +39,10 @@ class TagsController {
   }
 
   async deleteTag(req: Request<IdParam>, res: Response) {
-    try {
-      const tagId = req.params.id;
-      await tagService.deleteTag(tagId);
+    const tagId = req.params.id;
+    await tagService.deleteTag(tagId);
 
-      res.sendStatus(HTTP_CODE.OK);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
+    res.sendStatus(HTTP_CODE.OK);
   }
 }
 

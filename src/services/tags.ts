@@ -3,37 +3,67 @@ import randomColor from 'randomcolor';
 import { createError } from '../utils/errors';
 import { Post } from '../../models/Posts';
 import { ObjectId } from 'mongodb';
+import { startSession } from 'mongoose';
 
 class TagsService {
   async createTag(name: string) {
-    const sameTag = await Tag.findOne({ name }).lean();
-    if (sameTag) {
-      throw new createError.UnprocessableEntity({ data: { message: 'this tag is already used' } });
+    try {
+      const sameTag = await Tag.findOne({ name }).lean();
+      if (sameTag) {
+        throw new createError.UnprocessableEntity({
+          data: { message: 'this tag is already used' },
+        });
+      }
+      const color = randomColor({ luminosity: 'dark' });
+
+      const newTag = new Tag({ name, color });
+
+      await newTag.save();
+
+      return newTag.toObject();
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
-    const color = randomColor({ luminosity: 'dark' });
-
-    const newTag = new Tag({ name, color });
-
-    await newTag.save();
-
-    return newTag.toObject();
   }
 
   async getAllTags() {
-    return await Tag.find().lean();
+    try {
+      return await Tag.find().lean();
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   async updateTag(tagId: string, name: string) {
-    return await Tag.findOneAndUpdate(
-      { _id: tagId },
-      { name },
-      { returnDocument: 'after', lean: true },
-    );
+    try {
+      return await Tag.findOneAndUpdate(
+        { _id: tagId },
+        { name },
+        { returnDocument: 'after', lean: true },
+      );
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   async deleteTag(tagId: string) {
-    await Post.updateMany({ tags: new ObjectId(tagId) }, { $pull: { tags: new ObjectId(tagId) } });
-    await Tag.findOneAndDelete({ _id: tagId }).lean();
+    const session = await startSession();
+    try {
+      session.startTransaction();
+      await Post.updateMany(
+        { tags: new ObjectId(tagId) },
+        { $pull: { tags: new ObjectId(tagId) } },
+        { session },
+      );
+      await Tag.findOneAndDelete({ _id: tagId }, { session }).lean();
+    } catch (err) {
+      console.error(err);
+      session.abortTransaction();
+      throw err;
+    }
   }
 }
 
