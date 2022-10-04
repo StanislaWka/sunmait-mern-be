@@ -29,6 +29,12 @@ export enum HTTP_CODE {
   INTERNAL_SERVER_ERROR = 500,
 }
 
+export enum ORDER {
+  NEWEST = 'newest',
+  OLDEST = 'oldest',
+  MOST_VIEWED = 'mostViewed',
+}
+
 export const jwtTimestamps = {
   accessExpiresIn: '60m',
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers

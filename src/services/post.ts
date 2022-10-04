@@ -1,16 +1,18 @@
 import { ObjectId, UpdateResult } from 'mongodb';
 import { Post } from '../../models/Posts';
 import { User } from '../../models/User';
-import { DEFAULT_LIMIT } from '../constants';
+import { DEFAULT_LIMIT, ORDER } from '../constants';
 import { PostData } from '../controllers/interfaces';
 import { createError } from '../utils/errors';
 
 interface PatchPost extends Omit<Partial<PostData>, 'userId' | 'viewsCount'> {
-  postId: string;
+  postId: ObjectId;
+  tagsId: ObjectId[];
 }
 
 interface CreatePostData extends PostData {
-  userId: string;
+  userId: ObjectId;
+  tagsId: ObjectId[];
 }
 
 class PostsService {
@@ -22,9 +24,9 @@ class PostsService {
         throw new createError.UnprocessableEntity();
       }
 
-      const { userId, ...otherDate } = data;
+      const { userId, tagsId, ...otherDate } = data;
 
-      const post = new Post({ ...otherDate, user: userId });
+      const post = new Post({ ...otherDate, tags: tagsId, user: userId });
 
       await post.save();
     } catch (e) {
@@ -34,41 +36,44 @@ class PostsService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  async getAllPosts(limit: number, page: number, filter: string, tagsId: string[], order: string) {
+  async getAllPosts(
+    limit: number,
+    page: number,
+    filter: string,
+    order: string,
+    tagsId?: ObjectId[],
+  ) {
     try {
       const filetQuery = { $regex: new RegExp(filter), $options: 'i' };
-      let tagQuery;
-      if (tagsId.length) {
-        tagQuery = { tags: { $all: tagsId } };
-      } else {
-        tagQuery = {
-          tags: { $nin: [] },
-        };
-      }
-
       let orderQuery: any;
 
-      if (order === '' || order === 'newest') {
-        orderQuery = { createdAt: -1 };
-      } else if (order === 'oldest') {
+      if (order === ORDER.OLDEST) {
         orderQuery = { createdAt: 1 };
-      } else if (order === 'mostViewed') {
+      } else if (order === ORDER.MOST_VIEWED) {
         orderQuery = { viewsCount: -1 };
+      } else {
+        orderQuery = { createdAt: -1 };
       }
 
       return await Post.aggregate([
         {
+          $match: {
+            $and: [
+              { ...(tagsId?.length && { tags: { $all: tagsId } }) },
+              { $or: [{ title: filetQuery }, { text: filetQuery }] },
+            ],
+          },
+        },
+        {
           $facet: {
             totalCount: [{ $count: 'count' }],
             posts: [
-              { $match: { $or: [{ title: filetQuery }, { text: filetQuery }] } },
-              { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
-              { $unwind: '$user' },
-              { $match: tagQuery },
-              { $lookup: { from: 'tags', localField: 'tags', foreignField: '_id', as: 'tags' } },
               { $sort: orderQuery },
               { $skip: page > 0 ? (page - 1) * limit : 0 },
               { $limit: limit },
+              { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
+              { $unwind: '$user' },
+              { $lookup: { from: 'tags', localField: 'tags', foreignField: '_id', as: 'tags' } },
             ],
           },
         },
@@ -79,7 +84,7 @@ class PostsService {
     }
   }
 
-  async getOnePost(data: { postId: string }) {
+  async getOnePost(data: { postId: ObjectId }) {
     try {
       const { postId } = data;
 
@@ -106,7 +111,7 @@ class PostsService {
   async updatePost(data: PatchPost): Promise<UpdateResult> {
     try {
       const { postId, ...otherData } = data;
-      const post = await Post.findById(postId);
+      const post = await Post.findById(postId).lean();
       if (!post) {
         throw new createError.UnprocessableEntity();
       }
@@ -138,17 +143,17 @@ class PostsService {
     }
   }
 
-  async getUserPosts(userId: string, limit = DEFAULT_LIMIT, page = 0) {
+  async getUserPosts(userId: ObjectId, limit = DEFAULT_LIMIT, page = 0) {
     try {
-      const user = await User.findById(userId);
+      const user = await User.findById(userId).lean();
       const posts = await Post.aggregate([
         {
           $facet: {
             posts: [
-              { $match: { user: new ObjectId(userId) } },
-              { $lookup: { from: 'tags', localField: 'tags', foreignField: '_id', as: 'tags' } },
+              { $match: { user: userId } },
               { $skip: page > 0 ? (page - 1) * limit : 0 },
               { $limit: limit },
+              { $lookup: { from: 'tags', localField: 'tags', foreignField: '_id', as: 'tags' } },
             ],
           },
         },

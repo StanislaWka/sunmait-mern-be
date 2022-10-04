@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
 import { HTTP_CODE } from '../constants';
 import tagService from '../services/tags';
 
@@ -29,7 +30,7 @@ class TagsController {
     try {
       const tagId = req.params.id;
       const { name } = req.body;
-      await tagService.updateTag(tagId, name);
+      await tagService.updateTag(new ObjectId(tagId), name);
 
       res.sendStatus(HTTP_CODE.OK);
     } catch (e) {
@@ -40,7 +41,7 @@ class TagsController {
 
   async deleteTag(req: Request<IdParam>, res: Response) {
     const tagId = req.params.id;
-    await tagService.deleteTag(tagId);
+    await tagService.deleteTag(new ObjectId(tagId));
 
     res.sendStatus(HTTP_CODE.OK);
   }

@@ -64,7 +64,7 @@ class UserService {
 
   async getUsers() {
     try {
-      const result = await User.find();
+      const result = await User.find().lean();
 
       return result;
     } catch (e) {

@@ -22,7 +22,7 @@ const PostSchema = new Schema<PostModel>(
       required: true,
       unique: true,
     },
-    tags: [{ type: ObjectId, ref: 'Tag' }],
+    tags: { type: [ObjectId], ref: 'Tag' },
     viewsCount: {
       type: Number,
       default: 0,

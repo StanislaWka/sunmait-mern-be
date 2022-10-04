@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { DEFAULT_LIMIT, HTTP_CODE } from '../constants';
 import { AuthorizedRequest } from '../interfaces';
 import postService from '../services/post';
-import { GetAllPostQuery, IdParam, PostData } from './interfaces';
+import { GetAllPostsRequest, IdParam, PostData } from './interfaces';
 
 class PostsController {
   async createPost(req: AuthorizedRequest<null, null, PostData>, res: Response) {
@@ -12,32 +12,36 @@ class PostsController {
     const result = await postService.createPost({
       title,
       text,
-      tags,
+      tagsId: tags.map((tag) => new ObjectId(tag)),
       viewsCount,
-      userId: req.userId,
+      userId: new ObjectId(req.userId),
       imageUrl,
     });
 
     res.status(HTTP_CODE.CREATED).send(result);
   }
 
-  async getAllPosts(req: Request<null, null, null, GetAllPostQuery>, res: Response) {
-    const { limit = DEFAULT_LIMIT, page = 0, filter = '', tags = '', order = '' } = req.query;
-    let tagsArray = tags.split(',');
-    let objectIdArray: any = [];
-    if (tagsArray[0] === '') {
-      tagsArray = [];
-    } else {
-      objectIdArray = tagsArray.map((tagId) => new ObjectId(tagId));
+  async getAllPosts(req: GetAllPostsRequest, res: Response) {
+    try {
+      const { limit = DEFAULT_LIMIT, page = 0, filter = '', tagsId, order = '' } = req.query;
+
+      const result = await postService.getAllPosts(
+        +limit,
+        +page,
+        filter,
+        order,
+        tagsId?.split(',').map((tag) => new ObjectId(tag)),
+      );
+
+      res.send(result);
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
-
-    const result = await postService.getAllPosts(+limit, +page, filter, objectIdArray, order);
-
-    res.send(result);
   }
 
   async getOnePost(req: Request<IdParam>, res: Response) {
-    const postId = req.params.id;
+    const postId = new ObjectId(req.params.id);
 
     const result = await postService.getOnePost({ postId });
 
@@ -45,13 +49,13 @@ class PostsController {
   }
 
   async updatePost(req: Request<IdParam, null, PostData>, res: Response) {
-    const postId = req.params.id;
+    const postId = new ObjectId(req.params.id);
     const { title, text, imageUrl, tags = [] } = req.body;
     const result = await postService.updatePost({
       title,
       text,
       imageUrl,
-      tags,
+      tagsId: tags.map((tag) => new ObjectId(tag)),
       postId,
     });
 
@@ -70,7 +74,11 @@ class PostsController {
     const userId = req.userId;
     const { limit = 100, page = 1 } = req.query;
 
-    const result = await postService.getUserPosts(userId, Number(limit), Number(page));
+    const result = await postService.getUserPosts(
+      new ObjectId(userId),
+      Number(limit),
+      Number(page),
+    );
 
     res.send(result);
   }

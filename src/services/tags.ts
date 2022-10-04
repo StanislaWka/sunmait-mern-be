@@ -36,7 +36,7 @@ class TagsService {
     }
   }
 
-  async updateTag(tagId: string, name: string) {
+  async updateTag(tagId: ObjectId, name: string) {
     try {
       return await Tag.findOneAndUpdate(
         { _id: tagId },
@@ -49,15 +49,11 @@ class TagsService {
     }
   }
 
-  async deleteTag(tagId: string) {
+  async deleteTag(tagId: ObjectId) {
     const session = await startSession();
     try {
       session.startTransaction();
-      await Post.updateMany(
-        { tags: new ObjectId(tagId) },
-        { $pull: { tags: new ObjectId(tagId) } },
-        { session },
-      );
+      await Post.updateMany({ tags: tagId }, { $pull: { tags: tagId } }, { session });
       await Tag.findOneAndDelete({ _id: tagId }, { session }).lean();
       session.commitTransaction();
     } catch (err) {
