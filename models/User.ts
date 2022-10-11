@@ -1,12 +1,14 @@
+import { ObjectId } from 'mongodb';
 import { Schema, model } from 'mongoose';
 
 export interface UserModel {
-  _id: string;
+  _id: ObjectId;
   name: string;
   surname: string;
   email: string;
   password: string;
   avatarUrl: string;
+  roleId: ObjectId;
 }
 
 const schema = new Schema<UserModel>(
@@ -16,6 +18,7 @@ const schema = new Schema<UserModel>(
     email: { type: String, required: true, unique: false },
     password: { type: String, required: true },
     avatarUrl: String,
+    roleId: { type: ObjectId, ref: 'Role', required: true },
   },
   {
     timestamps: true,

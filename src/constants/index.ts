@@ -16,6 +16,11 @@ export const STRING_LENGTHS = {
   LARGE: 128,
 };
 
+export enum ROLES {
+  ADMIN = 'admin',
+  EMPLOYEE = 'employee',
+}
+
 export enum HTTP_CODE {
   OK = 200,
   CREATED = 201,

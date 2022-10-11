@@ -111,7 +111,7 @@ class TokenService {
 }
 export const tokenService = new TokenService();
 
-interface UserAttributes {
+export interface UserAttributes {
   _id: string;
   name: string;
   surname: string;
