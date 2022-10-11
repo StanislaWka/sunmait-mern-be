@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { UserModel } from '../../models/User';
 import { PostModel } from '../../models/Posts';
 
@@ -18,6 +19,16 @@ export type PostDataWithUsers = PostModel & {
   userId: string;
   user: Omit<UserModel, 'password' | 'imageUrl'>;
 };
+
+export interface GetAllPostQuery {
+  limit: string;
+  page: string;
+  filter: string;
+  tagsId?: string;
+  order: string;
+}
+
+export interface GetAllPostsRequest extends Request<null, null, null, GetAllPostQuery> {}
 
 export interface LoginBody extends Pick<UserModel, 'email' | 'password'> {}
 

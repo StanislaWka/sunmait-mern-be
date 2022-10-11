@@ -15,14 +15,15 @@ router.post(
   controller.createPost,
 );
 
+// @ts-ignore
 router.get(POST_ROUTE.MAIN, checkAuthMiddleware, controller.getAllPosts);
 
 router.get(
-  POST_ROUTE.MAIN_WITH_ID,
+  POST_ROUTE.GET_USER_POSTS,
   checkAuthMiddleware,
-  schemaValidator(schema.getDeleteWithId),
+  // schemaValidator(schema.getDeleteWithId),
   // @ts-ignore
-  controller.getOnePost,
+  controller.getUserPosts,
 );
 
 router.patch(
@@ -39,6 +40,14 @@ router.delete(
   schemaValidator(schema.getDeleteWithId),
   // @ts-ignore
   controller.deletePost,
+);
+
+router.get(
+  POST_ROUTE.MAIN_WITH_ID,
+  checkAuthMiddleware,
+  schemaValidator(schema.getDeleteWithId),
+  // @ts-ignore
+  controller.getOnePost,
 );
 
 export default router;

@@ -22,7 +22,9 @@
     "joi-objectid": "^4.0.2",
     "joi-to-swagger": "^6.1.1",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.10.0",
     "mongoose": "^6.6.0",
+    "randomcolor": "^0.6.2",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
@@ -32,6 +34,7 @@
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
     "@types/jsonwebtoken": "^8.5.9",
+    "@types/randomcolor": "^0.5.6",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "concurrently": "^7.4.0",
