@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { User } from '../../models/User';
+import { Role } from '../../models/Role';
 import { tokenService } from './tokenService';
 import { createError } from '../utils/errors';
 
@@ -15,9 +16,21 @@ class UserService {
         });
       }
 
+      const employeeRole = await Role.findOne({ name: 'employee' });
+
+      if (!employeeRole) {
+        throw new createError.InternalServerError();
+      }
+
       const hashPassword = await bcrypt.hash(password, this.salt);
 
-      const user = new User({ email, password: hashPassword, name, surname });
+      const user = new User({
+        email,
+        password: hashPassword,
+        name,
+        surname,
+        roleId: employeeRole._id,
+      });
 
       await user.save();
 
@@ -30,7 +43,7 @@ class UserService {
 
   async login(email: string, userPassword: string) {
     try {
-      const candidate = await User.findOne({ email }).lean();
+      const candidate = await User.findOne({ email }).populate('roleId').lean();
 
       if (!candidate) {
         throw new createError.UnprocessableEntity({

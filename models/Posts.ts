@@ -30,7 +30,7 @@ const PostSchema = new Schema<PostModel>(
     user: {
       type: ObjectId,
       ref: 'User',
-      require: true,
+      required: true,
     },
     imageUrl: String,
   },
